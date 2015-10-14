@@ -11,30 +11,44 @@ import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glOrtho;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
-import main.input.Input;
-
 public class DisplayManager {
 	
+	private static long lastFrame;
+
 	private static Texture mossyCobblestone;
 
 	private static int WIDTH;
 	private static int HEIGHT;
 	
+	private static long getTime() {
+		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+	}
+	
+	private static double getDelatTime() {
+		long currentTime = getTime();
+		double delta = (double)(currentTime - lastFrame);
+		lastFrame = getTime();
+		return delta;
+		
+	}
+	
 	public DisplayManager() {
 		WIDTH = 1280;
-		HEIGHT = 1280;
+		HEIGHT = 720;
 		createDisplay();
 	}
 	
 	public void createDisplay() {
 		try {
 			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
-		//	Display.setResizable(false);
+			Display.setResizable(false);
 			Display.setTitle("Game Window");
 			Display.create();
 		} catch (LWJGLException e) {
@@ -50,22 +64,73 @@ public class DisplayManager {
 	}
 	
 	public void update() {
+		int x = 100;
+		int y = 100;
+		int dX = 1;
+		int dY = 1;
+		double delta;
+		boolean isJumping = false;
+		boolean isGrounded = false;
+		
+		
+		lastFrame = getTime();
+		
+		Block cube = new Block();
+		
 		
 		while(!Display.isCloseRequested()) {
-			
+			 
 			glClear(GL_COLOR_BUFFER_BIT);
 			GL11.glPushMatrix();
 			
-				
+			delta = getDelatTime();
+			
+			if(Keyboard.isKeyDown(Keyboard.KEY_D)) {
+				x += delta * dX * 0.2;	
+			}
+			
+			if(Keyboard.isKeyDown(Keyboard.KEY_A)) {
+				x += delta * dX * -0.1;	
+			}
+			
+			
+			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+				if(isGrounded) {
+					y -= delta * dY * 0.5;
+					isJumping = true;
+					if(y <= 400) {
+						isGrounded = false;
+						isJumping = false;
+					}
+				} 
+			}
+			
+			else {
+				isJumping  = false;
+			}
+			
+			if(delta > 0 && !isJumping) {
+				y -= delta * dY * -0.3;
+				if(y > 620 ) {
+					y = 620;
+					isGrounded = true;
+				}
+				else {
+					isGrounded = false;
+				}
+			}
+			
+			//y += delta * dY * 0.1;
 			
 			//Render code goes here
-            Render.draw();
+			Block.drawCobble(x,y);
 				
-			//Two method calls to update the display and sync it
-			Render.displayUpdate();
-			Input.TranslateUp();
+			//Two method calls to update the display and sync it 
+            Display.update();
+			Display.sync(60);
+
 		}
-		Block.release();
+		cube.release();
 		destroyDisplay();
 		
 	}

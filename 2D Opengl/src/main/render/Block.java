@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -35,15 +36,8 @@ public class Block {
 		}
 	}
 	
-	public static void update() {
-		//blockY += 670 - Mouse.getY();
-	   // blockX += -50 +  Mouse.getX();
-	}
 	
 	public static void drawCobble(int x, int y) {		
-		//System.out.println("Mouse X = " + Mouse.getX() + " Mouse Y = " + (720 - Mouse.getY()));
-		
-		//update();
 		
 		mossyCobblestone.bind();
 		glBegin(GL_QUADS);
@@ -71,6 +65,15 @@ public class Block {
 			glTexCoord2f(0,1);
 			glVertex2i(x, y + 100); 
 		glEnd();
+	}
+	
+	public static void testMovement(int x, int y) {
+		
+		double velocity = 0;
+		final double GRAV = 9.81;
+		boolean DPressed;
+		
+		
 	}
 	
 	public static void release() {
